@@ -89,10 +89,10 @@ def whatNumIsThis(filePath):
 		
 	#counts frequency of elements, returns dictionary entry of the most frequent	
 	x = Counter(matchedAr).most_common(1)[0][0]
-	print note_dict[x]
+	print "The note you showed me is an " + note_dict[x]
 	#from the frequency of elements in the array, we can make an educated guess as to which number matches the picture
 
-	'''graphX = []
+	graphX = []
 	graphY = []
 
 	for eachThing in x:
@@ -109,10 +109,10 @@ def whatNumIsThis(filePath):
 
 	ax2.bar(graphX, graphY, align='center')
 
-	plt.ylim(400)
+	plt.ylim(4)
 	xloc = plt.MaxNLocator(12)
 	ax2.xaxis.set_major_locator(xloc)
-	plt.show()'''
+	plt.show()
 
 
 

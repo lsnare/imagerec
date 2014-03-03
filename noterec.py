@@ -6,6 +6,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 import time
 from collections import Counter
+import cv2
+
+def char_range(c1, c2):
+    """Generates the characters from `c1` to `c2`, inclusive."""
+    for c in xrange(ord(c1), ord(c2)+1):
+        yield chr(c)
 
 #Populates a text file with the array versions of each image
 def createExamples():
@@ -91,30 +97,6 @@ def whatNumIsThis(filePath):
 	x = Counter(matchedAr).most_common(1)[0][0]
 	print "The note you showed me is an " + note_dict[x]
 	#from the frequency of elements in the array, we can make an educated guess as to which number matches the picture
-
-	'''graphX = []
-	graphY = []
-
-	for eachThing in x:
-		print eachThing
-		graphX.append(eachThing)
-		print x[eachThing]
-		graphY.append(x[eachThing])
-
-	fig = plt.figure()
-	ax1 = plt.subplot2grid((4,4),(0,0),rowspan=1, colspan=4)
-	ax2 = plt.subplot2grid((4,4),(1,0),rowspan=3, colspan=4)
-
-	ax1.imshow(iar)
-
-	ax2.bar(graphX, graphY, align='center')
-
-	plt.ylim(400)
-	xloc = plt.MaxNLocator(12)
-	ax2.xaxis.set_major_locator(xloc)
-	plt.show()'''
-
-
 
 whatNumIsThis('tester.png')
 #createExamples()	
