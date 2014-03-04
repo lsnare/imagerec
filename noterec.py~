@@ -6,52 +6,41 @@ import numpy as np
 import matplotlib.pyplot as plt
 import time
 from collections import Counter
+import cv2
+import os.path
+
+def char_range(c1, c2):
+    """Generates the characters from `c1` to `c2`, inclusive."""
+    for c in xrange(ord(c1), ord(c2)+1):
+        yield chr(c)
 
 #Populates a text file with the array versions of each image
 def createExamples():
 	numberArrayExamples = open('noteArEx.txt', 'a')
-	notesWeHave = range(0,9)
-	versionsWeHave = range(1,1)
+	notesWeHave = char_range('a', 'g')
+	timesWeHave = ['e', 'q', 'h', 'w']
+	octavesWeHave = range(-9, 10)	
+	versionsWeHave = range(0, 10)
 
-	for eachNum in notesWeHave:
+	#horribly inefficient loops!
+	for eachNote in notesWeHave:
+		for eachTime in timesWeHave:
+			for eachOctave in octavesWeHave:
+				for eachVersion in versionsWeHave:
 		
-		#cycle through each file
-		imgFilePath = 'images/'+str(eachNum)+'.'+'1.png'
-		#open the image			
-		ei = Image.open(imgFilePath)
-		#convert the image to an array and a list
-		eiar = np.array(ei)
-		eiar1 = str(eiar.tolist())
+					#cycle through each file
+					imgFilePath = 'newimages/'+eachNote+eachTime+str(eachOctave)+str(eachVersion)+'.gif'
+					#open the image	
+					if (os.path.isfile(imgFilePath)):		
+						ei = Image.open(imgFilePath)
+						#convert the image to an array and a list
+						eiar = np.array(ei)
+						eiar1 = str(eiar.tolist())
 
-		#format file input, print to file
-		lineToWrite = str(eachNum)+'::'+eiar1+'\n'
-		numberArrayExamples.write(lineToWrite)
-		print eachNum
-
-#a method to convert image to black and white
-def threshold(imageArray):
-	#array to average later
-	balanceAr = []
-	newAr = imageArray
-
-	for eachRow in imageArray:
-		for eachPix in eachRow:
-			avgNum = reduce(lambda x, y: x + y, eachPix[:3])/len(eachPix[:3])
-			balanceAr.append(avgNum)
-	balance = reduce(lambda x, y: x + y, balanceAr)/len(balanceAr)
-	for eachRow in newAr: 
-		for eachPix in eachRow:
-			if reduce(lambda x, y: x + y, eachPix[:3])/len(eachPix[:3]) > balance:
-				eachPix[0] = 255;
-				eachPix[1] = 255;
-				eachPix[2] = 255;
-				eachPix[3] = 255;
-			else:
-				eachPix[0] = 0;
-				eachPix[1] = 0;
-				eachPix[2] = 0;
-				eachPix[3] = 255;
-	return newAr
+						#format file input, print to file
+						lineToWrite = eachNote +'::'+eiar1+'\n'
+						numberArrayExamples.write(lineToWrite)
+						print imgFilePath
 
 #image recognition!
 def whatNumIsThis(filePath):
@@ -92,32 +81,7 @@ def whatNumIsThis(filePath):
 	print "The note you showed me is an " + note_dict[x]
 	#from the frequency of elements in the array, we can make an educated guess as to which number matches the picture
 
-	graphX = []
-	graphY = []
-
-	for eachThing in x:
-		print eachThing
-		graphX.append(eachThing)
-		print x[eachThing]
-		graphY.append(x[eachThing])
-
-	fig = plt.figure()
-	ax1 = plt.subplot2grid((4,4),(0,0),rowspan=1, colspan=4)
-	ax2 = plt.subplot2grid((4,4),(1,0),rowspan=3, colspan=4)
-
-	ax1.imshow(iar)
-
-	ax2.bar(graphX, graphY, align='center')
-
-	plt.ylim(4)
-	xloc = plt.MaxNLocator(12)
-	ax2.xaxis.set_major_locator(xloc)
-	plt.show()
-
-
-
-whatNumIsThis('tester.png')
-#createExamples()	
+createExamples()	
 
 
 

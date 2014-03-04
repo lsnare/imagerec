@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import time
 from collections import Counter
 import cv2
+import os.path
 
 def char_range(c1, c2):
     """Generates the characters from `c1` to `c2`, inclusive."""
@@ -15,95 +16,104 @@ def char_range(c1, c2):
 
 #Populates a text file with the array versions of each image
 def createExamples():
-	numberArrayExamples = open('noteArEx.txt', 'a')
-	notesWeHave = range(0,9)
-	versionsWeHave = range(1,1)
+    if(os.path.isfile('noteArEx.txt')):
+        os.remove('noteArEx.txt')
+    numberArrayExamples = open('noteArEx.txt', 'a')
+    notesWeHave = char_range('a', 'g')
+    timesWeHave = ['e', 'q', 'h', 'w']
+    octavesWeHave = range(-9, 10)   
+    versionsWeHave = range(0, 10)
 
-	for eachNum in notesWeHave:
-		
-		#cycle through each file
-		imgFilePath = 'images/'+str(eachNum)+'.'+'1.png'
-		#open the image			
-		ei = Image.open(imgFilePath)
-		#convert the image to an array and a list
-		eiar = np.array(ei)
-		eiar1 = str(eiar.tolist())
+    #horribly inefficient loops!
+    for eachNote in notesWeHave:
+        for eachTime in timesWeHave:
+            for eachOctave in octavesWeHave:
+                for eachVersion in versionsWeHave:
+        
+                    #cycle through each file
+                    imgFilePath = 'newimages/'+eachNote+eachTime+str(eachOctave)+str(eachVersion)+'.gif'
+                    #open the image 
+                    if (os.path.isfile(imgFilePath)):       
+                        ei = Image.open(imgFilePath)
+                        #convert the image to an array and a list
+                        eiar = np.array(ei)
+                        #threshold(eiar)
+                        eiar1 = str(eiar.tolist())
 
-		#format file input, print to file
-		lineToWrite = str(eachNum)+'::'+eiar1+'\n'
-		numberArrayExamples.write(lineToWrite)
-		print eachNum
+                        #format file input, print to file
+                        lineToWrite = eachNote +'::'+eiar1+'\n'
+                        numberArrayExamples.write(lineToWrite)
+                        print imgFilePath
 
 #a method to convert image to black and white
 def threshold(imageArray):
-	#array to average later
-	balanceAr = []
-	newAr = imageArray
+    #array to average later
+    balanceAr = []
+    newAr = imageArray
 
-	for eachRow in imageArray:
-		for eachPix in eachRow:
-			avgNum = reduce(lambda x, y: x + y, eachPix[:3])/len(eachPix[:3])
-			balanceAr.append(avgNum)
-	balance = reduce(lambda x, y: x + y, balanceAr)/len(balanceAr)
-	for eachRow in newAr: 
-		for eachPix in eachRow:
-			if reduce(lambda x, y: x + y, eachPix[:3])/len(eachPix[:3]) > balance:
-				eachPix[0] = 255;
-				eachPix[1] = 255;
-				eachPix[2] = 255;
-				eachPix[3] = 255;
-			else:
-				eachPix[0] = 0;
-				eachPix[1] = 0;
-				eachPix[2] = 0;
-				eachPix[3] = 255;
-	return newAr
+    for eachRow in imageArray:
+        for eachPix in eachRow:
+            avgNum = reduce(lambda x, y: x + y, eachPix[:3])/len(eachPix[:3])
+            balanceAr.append(avgNum)
+    balance = reduce(lambda x, y: x + y, balanceAr)/len(balanceAr)
+    for eachRow in newAr: 
+        for eachPix in eachRow:
+            if reduce(lambda x, y: x + y, eachPix[:3])/len(eachPix[:3]) > balance:
+                eachPix[0] = 255;
+                eachPix[1] = 255;
+                eachPix[2] = 255;
+                eachPix[3] = 255;
+            else:
+                eachPix[0] = 0;
+                eachPix[1] = 0;
+                eachPix[2] = 0;
+                eachPix[3] = 255;
+    return newAr
 
 #image recognition!
 def whatNumIsThis(filePath):
-	matchedAr = []
-	note_dict = {0: 'E', 1: 'F', 2: 'G', 3: 'A', 4: 'B', 5: 'C', 6: 'D', 7: 'E'} 
-	loadExamps = open('noteArEx.txt', 'r').read()
-	loadExamps = loadExamps.split('\n')
-	
-	i = Image.open(filePath)
-	iar = np.array(i)
-	iarl = iar.tolist()
+    matchedAr = []
+    note_dict = {0: 'E', 1: 'F', 2: 'G', 3: 'A', 4: 'B', 5: 'C', 6: 'D', 7: 'E'} 
+    loadExamps = open('noteArEx.txt', 'r').read()
+    loadExamps = loadExamps.split('\n')
+    
+    i = Image.open(filePath)
+    iar = np.array(i)
+    iarl = iar.tolist()
 
-	inQuestion = str(iarl)
-	
-	for eachExample in loadExamps:
-		if len(eachExample) > 3:
-			
-			#split the file into arrays for each number			
-			splitEx = eachExample.split('::')
-			currentNum = splitEx[0]
-			currentAr = splitEx[1]
-	
-			eachPixEx = currentAr.split('],')
-			
-			eachPixInQ = inQuestion.split('],')
+    inQuestion = str(iarl)
+    
+    for eachExample in loadExamps:
+        if len(eachExample) > 3:
+            
+            #split the file into arrays for each number         
+            splitEx = eachExample.split('::')
+            currentNum = splitEx[0]
+            currentAr = splitEx[1]
+    
+            eachPixEx = currentAr.split('],')
+            
+            eachPixInQ = inQuestion.split('],')
 
-			x=0
-			
-			while x < len(eachPixEx):
-				if eachPixEx[x] == eachPixInQ[x]:
-					matchedAr.append(int(currentNum))
-								
-				x += 1
+            x=0
+            
+            while x < len(eachPixEx):
+                if eachPixEx[x] == eachPixInQ[x]:
+                    matchedAr.append(int(currentNum))
+                                
+                x += 1
 
-		
-	#counts frequency of elements, returns dictionary entry of the most frequent	
-	x = Counter(matchedAr).most_common(1)[0][0]
-	print "The note you showed me is an " + note_dict[x]
-	#from the frequency of elements in the array, we can make an educated guess as to which number matches the picture
+        
+    #counts frequency of elements, returns dictionary entry of the most frequent    
+    x = Counter(matchedAr).most_common(1)[0][0]
+    print "The note you showed me is an " + note_dict[x]
+    #from the frequency of elements in the array, we can make an educated guess as to which number matches the picture
 
-whatNumIsThis('tester.png')
-#createExamples()	
-
+createExamples()    
 
 
-	
+
+    
 
 
 
